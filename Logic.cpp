@@ -203,25 +203,24 @@ bool Logic::MoveChecker(int xPos, int yPos)
 
 bool Logic::Bicie(int xPos, int yPos)
 {
-
+    std::cout << xPos << std::endl;
+    std::cout << yPos << std::endl;
+    std::cout<<std::endl;
     // Black to move
     if (playerToMove->getIsBlack())
     {
-        // Queen figures to move
-        if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
+        for (int i = 0; i < p1Figures.size(); i++)
         {
-            for (int i = 0; i < p1Figures.size(); i++)
+            // Queen figures to move
+            if (dynamic_cast<NormalFigure *>(p1Figures[i]) == nullptr)
             {
                 for (int j = 0; j < p2Figures.size(); j++)
                 {
 
                 }
             }
-        }
-            // Normal figures to move
-        else
-        {
-            for (int i = 0; i < p1Figures.size(); i++)
+                // Normal figures to move
+            else
             {
                 for (int j = 0; j < p2Figures.size(); j++)
                 {
@@ -229,19 +228,37 @@ bool Logic::Bicie(int xPos, int yPos)
                     {
                         if (p1Figures[i]->getYPos() + 2 >= 8)
                         {
-                            std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                            std::cout << "Jest tylko teoretyczne bicie.1" << std::endl;
                             return true;
                         }
                         if ((p1Figures[i]->getXPos() == p2Figures[j]->getXPos() + 1) || (p1Figures[i]->getXPos() == p2Figures[j]->getXPos() - 1))
                         {
+                            if ((p1Figures[i]->getXPos() + 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
+                            {
+                                if (p1Figures[i]->getYPos() + 2 == yPos)
+                                {
+                                    p2Figures.erase(p2Figures.begin() + j);
+                                    std::cout << "Poprawny pionek" << std::endl;
+                                    return true;
+                                }
+                            }
+                            else if ((p1Figures[i]->getXPos() - 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
+                            {
+                                if (p1Figures[i]->getYPos() + 2 == yPos)
+                                {
+                                    p2Figures.erase(p2Figures.begin() + j);
+                                    std::cout << "Poprawny pionek" << std::endl;
+                                    return true;
+                                }
+                            }
                             if (p1Figures[i]->getXPos() + 2 >= 8)
                             {
-                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                std::cout << "Jest tylko teoretyczne bicie.2" << std::endl;
                                 return true;
                             }
-                            if (p1Figures[i]->getXPos() - 2 <= 0)
+                            if (p1Figures[i]->getXPos() - 2 < 0)
                             {
-                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                std::cout << "Jest tylko teoretyczne bicie.3" << std::endl;
                                 return true;
                             }
                             if (p1Figures[i] != playerToMove)
@@ -249,29 +266,9 @@ bool Logic::Bicie(int xPos, int yPos)
                                 std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
                                 return false;
                             }
-                            else
-                            {
-                                if ((p1Figures[i]->getXPos() + 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
-                                {
-                                    if (p1Figures[i]->getYPos() + 2 == yPos)
-                                    {
-                                        p2Figures.erase(p2Figures.begin() + j);
-                                        std::cout << "Poprawny pionek" << std::endl;
-                                        return true;
-                                    }
-                                }
-                                else if ((p1Figures[i]->getXPos() - 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
-                                {
-                                    if (p1Figures[i]->getYPos() + 2 == yPos)
-                                    {
-                                        p2Figures.erase(p2Figures.begin() + j);
-                                        std::cout << "Poprawny pionek" << std::endl;
-                                        return true;
-                                    }
-                                }
-                                std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
-                                return false;
-                            }
+                            std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
+                            return false;
+
                         }
                     }
                 }
@@ -281,41 +278,58 @@ bool Logic::Bicie(int xPos, int yPos)
         // White figures to move
     else
     {
-        // Queen figures to move
-        if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
+        for (int i = 0; i < p2Figures.size(); i++)
         {
-            for (int i = 0; i < p2Figures.size(); i++)
+            // Queen figures to move
+            if (dynamic_cast<NormalFigure *>(p2Figures[i]) == nullptr)
             {
                 for (int j = 0; j < p1Figures.size(); j++)
                 {
 
                 }
             }
-        }
-            // Normal figures to move
-        else
-        {
-            for (int i = 0; i < p2Figures.size(); i++)
+                // Normal figures to move
+            else
             {
                 for (int j = 0; j < p1Figures.size(); j++)
                 {
                     if (p2Figures[i]->getYPos() - 1 == p1Figures[j]->getYPos())
                     {
-                        if (p2Figures[i]->getYPos() - 2 <= 0)
+                        if (p2Figures[i]->getYPos() - 2 < 0)
                         {
-                            std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                            std::cout << "Jest tylko teoretyczne bicie.4" << std::endl;
                             return true;
                         }
                         if ((p2Figures[i]->getXPos() == p1Figures[j]->getXPos() + 1) || (p2Figures[i]->getXPos() == p1Figures[j]->getXPos() - 1))
                         {
+                            if ((p2Figures[i]->getXPos() + 2 == xPos) && (p1Figures[j]->getXPos() + 1 == xPos))
+                            {
+                                if (p2Figures[i]->getYPos() - 2 == yPos)
+                                {
+                                    p1Figures.erase(p1Figures.begin() + j);
+                                    std::cout << "Poprawny pionek" << std::endl;
+                                    return true;
+                                }
+                            }
+                            else if ((p2Figures[i]->getXPos() - 2 == xPos) && (p1Figures[j]->getXPos() - 1 == xPos))
+                            {
+                                if (p2Figures[i]->getYPos() - 2 == yPos)
+                                {
+                                    p1Figures.erase(p1Figures.begin() + j);
+                                    std::cout << "Poprawny pionek" << std::endl;
+                                    return true;
+                                }
+                            }
                             if (p2Figures[i]->getXPos() + 2 >= 8)
                             {
-                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                std::cout << p2Figures[i]->getXPos() << std::endl;
+                                std::cout << p2Figures[i]->getYPos() << std::endl;
+                                std::cout << "Jest tylko teoretyczne bicie.5" << std::endl;
                                 return true;
                             }
-                            if (p2Figures[i]->getXPos() - 2 <= 0)
+                            if (p2Figures[i]->getXPos() - 2 < 0)
                             {
-                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                std::cout << "Jest tylko teoretyczne bicie.6" << std::endl;
                                 return true;
                             }
                             if (p2Figures[i] != playerToMove)
@@ -323,29 +337,9 @@ bool Logic::Bicie(int xPos, int yPos)
                                 std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
                                 return false;
                             }
-                            else
-                            {
-                                if ((p2Figures[i]->getXPos() + 2 == xPos) && (p1Figures[j]->getXPos() + 1 == xPos))
-                                {
-                                    if (p2Figures[i]->getYPos() - 2 == yPos)
-                                    {
-                                        p1Figures.erase(p1Figures.begin() + j);
-                                        std::cout << "Poprawny pionek" << std::endl;
-                                        return true;
-                                    }
-                                }
-                                else if ((p2Figures[i]->getXPos() - 2 == xPos) && (p1Figures[j]->getXPos() - 1 == xPos))
-                                {
-                                    if (p2Figures[i]->getYPos() - 2 == yPos)
-                                    {
-                                        p1Figures.erase(p1Figures.begin() + j);
-                                        std::cout << "Poprawny pionek" << std::endl;
-                                        return true;
-                                    }
-                                }
-                                std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
-                                return false;
-                            }
+                            std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
+                            return false;
+
                         }
                     }
                 }

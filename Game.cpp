@@ -7,11 +7,20 @@ Game::Game() :
     Run();
 }
 
+#include <iostream>
+
 void Game::Run()
 {
     while (mainWindow.isOpen())
     {
-        HandleEvents();
+        try
+        {
+            HandleEvents();
+        } catch (std::exception &ex)
+        {
+            std::cout << ex.what() << std::endl;
+            break;
+        }
         Draw();
     }
 }
@@ -29,7 +38,6 @@ void Game::HandleEvents()
         {
             logic.MoveEventHandler(event);
         }
-        //TODO: else events handle
     }
 }
 
@@ -37,11 +45,10 @@ void Game::Draw()
 {
     if (mainWindow.isOpen())
     {
-        mainWindow.clear(sf::Color(0,0,0,0));
+        mainWindow.clear(sf::Color(0, 0, 0, 0));
 
         board.Draw(mainWindow);
         logic.Draw(mainWindow);
-        //TODO: Other drawers
         mainWindow.display();
     }
 }

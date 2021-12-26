@@ -8,14 +8,14 @@ Logic::Logic() : isP1Move(true), isClicked(false)
         {
             p1Figures.push_back(new NormalFigure(i, 0, true));
             p2Figures.push_back(new NormalFigure(i, 6, false));
-        } else
+        }
+        else
         {
             p1Figures.push_back(new NormalFigure(i, 1, true));
             p2Figures.push_back(new NormalFigure(i, 7, false));
         }
     }
 }
-
 
 void Logic::MoveEventHandler(sf::Event &event)
 {
@@ -31,13 +31,56 @@ void Logic::MoveEventHandler(sf::Event &event)
         {
             playerToMove->Move(xPos, yPos);
 
+            if (playerToMove->getIsBlack())
+            {
+                if (yPos == 7)
+                {
+
+                    Figure *newQueen = new QueenFigure(xPos, yPos, true);
+                    p1Figures.push_back(newQueen);
+                    for (int i = 0; i < p1Figures.size(); i++)
+                    {
+                        if (p1Figures[i] == playerToMove)
+                        {
+                            p1Figures.erase(p1Figures.begin() + i);
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (yPos == 0)
+                {
+                    Figure *newQueen = new QueenFigure(xPos, yPos, false);
+                    p2Figures.push_back(newQueen);
+                    for (int i = 0; i < p2Figures.size(); i++)
+                    {
+                        if (p2Figures[i] == playerToMove)
+                        {
+                            p2Figures.erase(p2Figures.begin() + i);
+                            break;
+                        }
+                    }
+                }
+            }
+
             isClicked = !isClicked;
             isP1Move = !isP1Move;
-        } else
+        }
+        else
         {
             isClicked = !isClicked;
         }
         playerToMove->ChangeColor(true);
+        if (p1Figures.size() == 0)
+        {
+            throw std::exception("Biale wygraly");
+        }
+        else if (p2Figures.size() == 0)
+        {
+            throw std::exception("Czarne wygraly");
+        }
     }
         //When it's chosing figure to move
     else
@@ -60,7 +103,8 @@ void Logic::MoveEventHandler(sf::Event &event)
                     finded = !finded;
                 }
             }
-        } else
+        }
+        else
         {
             for (int i = 0; i < p2Figures.size(); i++)
             {
@@ -80,34 +124,65 @@ void Logic::MoveEventHandler(sf::Event &event)
     }
 }
 
-#include <iostream>
-
 bool Logic::MoveChecker(int xPos, int yPos)
 {
     // it is queen figure
     if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
     {
-
-    }
-        // it is normal figure
-    else
-    {
-        // Ten sam rząd
+        // Same row
         if (playerToMove->getXPos() == xPos)
         {
             return false;
         }
+        // Black squares
+        if (((xPos + yPos) % 2) == 1)
+        {
+            return false;
+        }
 
+        //TODO: zrobienie bicia krolowa
+
+        for (int i = 0; i < p1Figures.size(); i++)
+        {
+            if ((p1Figures[i]->getXPos() == xPos) && (p1Figures[i]->getYPos() == yPos))
+            {
+                return false;
+            }
+        }
+        for (int i = 0; i < p2Figures.size(); i++)
+        {
+            if ((p2Figures[i]->getXPos() == xPos) && (p2Figures[i]->getYPos() == yPos))
+            {
+                return false;
+            }
+        }
+    }
+        // it is normal figure
+    else
+    {
+        // Same row
+        if (playerToMove->getXPos() == xPos)
+        {
+            return false;
+        }
+        // Black squares
         if (((xPos + yPos) % 2) == 1)
         {
             return false;
         }
         //TODO:
         // Tu bedzie sprawdzanie czy bicie jest w danym momencie
+        /*
         if (Bicie(xPos, yPos))
         {
             std::cout << "Jest bicie" << std::endl;
         }
+        else
+        {
+            std::cout << "Jest możliwe bicie" << std::endl;
+            return false;
+        }
+         */
 
         if (playerToMove->getIsBlack())
         {
@@ -137,7 +212,8 @@ bool Logic::MoveChecker(int xPos, int yPos)
             {
                 return false;
             }
-        } else
+        }
+        else
         {
             // bicie w przelocie
             if (((abs(playerToMove->getXPos() - xPos) == 2)) || (yPos - playerToMove->getYPos()) == 2)
@@ -207,7 +283,8 @@ bool Logic::Bicie(int xPos, int yPos)
             }
         }
 
-    } else
+    }
+    else
     {
         for (int i = 0; i < p1Figures.size(); i++)
         {

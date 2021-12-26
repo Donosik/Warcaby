@@ -11,3 +11,8 @@ void NormalFigure::Move(int x, int y)
     yPos = y;
     cShape.setPosition(size * 2 * xPos+size*(1-scale), size * 2 * yPos+size*(1-scale));
 }
+
+void NormalFigure::Draw(sf::RenderWindow &window)
+{
+ window.draw(cShape);
+}

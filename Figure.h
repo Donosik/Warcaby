@@ -16,8 +16,6 @@ protected:
 public:
     Figure(int x, int y, bool isBlack = false);
 
-    void Draw(sf::RenderWindow &window);
-
     inline int getXPos()
     {
         return xPos;
@@ -33,9 +31,11 @@ public:
         return isBlack;
     }
 
-    void ChangeColor(bool changeBack=false);
+    void ChangeColor(bool changeBack = false);
 
     virtual void Move(int x, int y) = 0;
+
+    virtual void Draw(sf::RenderWindow &window) = 0;
 };
 
 

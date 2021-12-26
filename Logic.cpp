@@ -157,7 +157,6 @@ bool Logic::MoveChecker(int xPos, int yPos)
         }
 
 
-
         if (!Bicie(xPos, yPos))
         {
             return false;
@@ -228,9 +227,23 @@ bool Logic::Bicie(int xPos, int yPos)
                 {
                     if (p1Figures[i]->getYPos() + 1 == p2Figures[j]->getYPos())
                     {
+                        if (p1Figures[i]->getYPos() + 2 >= 8)
+                        {
+                            std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                            return true;
+                        }
                         if ((p1Figures[i]->getXPos() == p2Figures[j]->getXPos() + 1) || (p1Figures[i]->getXPos() == p2Figures[j]->getXPos() - 1))
                         {
-
+                            if (p1Figures[i]->getXPos() + 2 >= 8)
+                            {
+                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                return true;
+                            }
+                            if (p1Figures[i]->getXPos() - 2 <= 0)
+                            {
+                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                return true;
+                            }
                             if (p1Figures[i] != playerToMove)
                             {
                                 std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
@@ -271,9 +284,9 @@ bool Logic::Bicie(int xPos, int yPos)
         // Queen figures to move
         if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
         {
-            for (int i = 0; i < p1Figures.size(); i++)
+            for (int i = 0; i < p2Figures.size(); i++)
             {
-                for (int j = 0; j < p2Figures.size(); j++)
+                for (int j = 0; j < p1Figures.size(); j++)
                 {
 
                 }
@@ -288,9 +301,23 @@ bool Logic::Bicie(int xPos, int yPos)
                 {
                     if (p2Figures[i]->getYPos() - 1 == p1Figures[j]->getYPos())
                     {
+                        if (p2Figures[i]->getYPos() - 2 <= 0)
+                        {
+                            std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                            return true;
+                        }
                         if ((p2Figures[i]->getXPos() == p1Figures[j]->getXPos() + 1) || (p2Figures[i]->getXPos() == p1Figures[j]->getXPos() - 1))
                         {
-
+                            if (p2Figures[i]->getXPos() + 2 >= 8)
+                            {
+                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                return true;
+                            }
+                            if (p2Figures[i]->getXPos() - 2 <= 0)
+                            {
+                                std::cout << "Jest tylko teoretyczne bicie." << std::endl;
+                                return true;
+                            }
                             if (p2Figures[i] != playerToMove)
                             {
                                 std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;

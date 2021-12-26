@@ -31,6 +31,7 @@ void Logic::MoveEventHandler(sf::Event &event)
         {
             playerToMove->Move(xPos, yPos);
 
+            //Change to queen
             if (playerToMove->getIsBlack())
             {
                 if (yPos == 7)
@@ -140,8 +141,6 @@ bool Logic::MoveChecker(int xPos, int yPos)
             return false;
         }
 
-        //TODO: zrobienie bicia krolowa
-
         for (int i = 0; i < p1Figures.size(); i++)
         {
             if ((p1Figures[i]->getXPos() == xPos) && (p1Figures[i]->getYPos() == yPos))
@@ -155,6 +154,13 @@ bool Logic::MoveChecker(int xPos, int yPos)
             {
                 return false;
             }
+        }
+
+
+
+        if (!Bicie(xPos, yPos))
+        {
+            return false;
         }
     }
         // it is normal figure
@@ -170,78 +176,6 @@ bool Logic::MoveChecker(int xPos, int yPos)
         {
             return false;
         }
-        //TODO:
-        // Tu bedzie sprawdzanie czy bicie jest w danym momencie
-        /*
-        if (Bicie(xPos, yPos))
-        {
-            std::cout << "Jest bicie" << std::endl;
-        }
-        else
-        {
-            std::cout << "Jest możliwe bicie" << std::endl;
-            return false;
-        }
-         */
-
-        if (playerToMove->getIsBlack())
-        {
-            // bicie w przelocie
-            if (((abs(playerToMove->getXPos() - xPos) == 2)) || (yPos - playerToMove->getYPos()) == 2)
-            {
-                for (int i = 0; i < p2Figures.size(); i++)
-                {
-                    if (p2Figures[i]->getYPos() == (yPos - 1))
-                    {
-                        if (p2Figures[i]->getXPos() ==
-                            (playerToMove->getXPos() - ((playerToMove->getXPos() - xPos) / 2)))
-                        {
-                            p2Figures.erase(p2Figures.begin() + i);
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-
-            if (((playerToMove->getYPos() - yPos) > 0) || (abs(playerToMove->getXPos() - xPos) > 1))
-            {
-                return false;
-            }
-            if (abs(playerToMove->getYPos() - yPos) != 1)
-            {
-                return false;
-            }
-        }
-        else
-        {
-            // bicie w przelocie
-            if (((abs(playerToMove->getXPos() - xPos) == 2)) || (yPos - playerToMove->getYPos()) == 2)
-            {
-                for (int i = 0; i < p1Figures.size(); i++)
-                {
-                    if (p1Figures[i]->getYPos() == (yPos + 1))
-                    {
-                        if (p1Figures[i]->getXPos() ==
-                            (playerToMove->getXPos() - ((playerToMove->getXPos() - xPos) / 2)))
-                        {
-                            p1Figures.erase(p1Figures.begin() + i);
-
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-            if (((playerToMove->getYPos() - yPos) < 0) || (abs(playerToMove->getXPos() - xPos) > 1))
-            {
-                return false;
-            }
-            if (abs(playerToMove->getYPos() - yPos) != 1)
-            {
-                return false;
-            }
-        }
 
         for (int i = 0; i < p1Figures.size(); i++)
         {
@@ -258,50 +192,140 @@ bool Logic::MoveChecker(int xPos, int yPos)
             }
         }
 
+        if (!Bicie(xPos, yPos))
+        {
+            return false;
+        }
     }
     return true;
 }
 
-//TODO:
-// Zrobić wymuszenie bicia, gdy jesteśmy
+#include <iostream>
+
 bool Logic::Bicie(int xPos, int yPos)
 {
+
+    // Black to move
     if (playerToMove->getIsBlack())
     {
-        for (int i = 0; i < p2Figures.size(); i++)
+        // Queen figures to move
+        if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
         {
-            if (p2Figures[i]->getYPos() == playerToMove->getYPos() + 1)
+            for (int i = 0; i < p1Figures.size(); i++)
             {
-                if (p2Figures[i]->getXPos() == playerToMove->getXPos() + 1)
+                for (int j = 0; j < p2Figures.size(); j++)
                 {
-                    return true;
-                }
-                if (p2Figures[i]->getXPos() == playerToMove->getXPos() - 1)
-                {
-                    return true;
+
                 }
             }
         }
+            // Normal figures to move
+        else
+        {
+            for (int i = 0; i < p1Figures.size(); i++)
+            {
+                for (int j = 0; j < p2Figures.size(); j++)
+                {
+                    if (p1Figures[i]->getYPos() + 1 == p2Figures[j]->getYPos())
+                    {
+                        if ((p1Figures[i]->getXPos() == p2Figures[j]->getXPos() + 1) || (p1Figures[i]->getXPos() == p2Figures[j]->getXPos() - 1))
+                        {
 
+                            if (p1Figures[i] != playerToMove)
+                            {
+                                std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
+                                return false;
+                            }
+                            else
+                            {
+                                if ((p1Figures[i]->getXPos() + 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
+                                {
+                                    if (p1Figures[i]->getYPos() + 2 == yPos)
+                                    {
+                                        p2Figures.erase(p2Figures.begin() + j);
+                                        std::cout << "Poprawny pionek" << std::endl;
+                                        return true;
+                                    }
+                                }
+                                else if ((p1Figures[i]->getXPos() - 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
+                                {
+                                    if (p1Figures[i]->getYPos() + 2 == yPos)
+                                    {
+                                        p2Figures.erase(p2Figures.begin() + j);
+                                        std::cout << "Poprawny pionek" << std::endl;
+                                        return true;
+                                    }
+                                }
+                                std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+        // White figures to move
     else
     {
-        for (int i = 0; i < p1Figures.size(); i++)
+        // Queen figures to move
+        if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
         {
-            if (p1Figures[i]->getYPos() == playerToMove->getYPos() - 1)
+            for (int i = 0; i < p1Figures.size(); i++)
             {
-                if (p1Figures[i]->getXPos() == playerToMove->getXPos() - 1)
+                for (int j = 0; j < p2Figures.size(); j++)
                 {
-                    return true;
+
                 }
-                if (p1Figures[i]->getXPos() == playerToMove->getXPos() + 1)
+            }
+        }
+            // Normal figures to move
+        else
+        {
+            for (int i = 0; i < p2Figures.size(); i++)
+            {
+                for (int j = 0; j < p1Figures.size(); j++)
                 {
-                    return true;
+                    if (p2Figures[i]->getYPos() - 1 == p1Figures[j]->getYPos())
+                    {
+                        if ((p2Figures[i]->getXPos() == p1Figures[j]->getXPos() + 1) || (p2Figures[i]->getXPos() == p1Figures[j]->getXPos() - 1))
+                        {
+
+                            if (p2Figures[i] != playerToMove)
+                            {
+                                std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
+                                return false;
+                            }
+                            else
+                            {
+                                if ((p2Figures[i]->getXPos() + 2 == xPos) && (p1Figures[j]->getXPos() + 1 == xPos))
+                                {
+                                    if (p2Figures[i]->getYPos() - 2 == yPos)
+                                    {
+                                        p1Figures.erase(p1Figures.begin() + j);
+                                        std::cout << "Poprawny pionek" << std::endl;
+                                        return true;
+                                    }
+                                }
+                                else if ((p2Figures[i]->getXPos() - 2 == xPos) && (p1Figures[j]->getXPos() - 1 == xPos))
+                                {
+                                    if (p2Figures[i]->getYPos() - 2 == yPos)
+                                    {
+                                        p1Figures.erase(p1Figures.begin() + j);
+                                        std::cout << "Poprawny pionek" << std::endl;
+                                        return true;
+                                    }
+                                }
+                                std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-    return false;
+    return true;
 }
 
 void Logic::Draw(sf::RenderWindow &window)

@@ -205,7 +205,7 @@ bool Logic::Bicie(int xPos, int yPos)
 {
     std::cout << xPos << std::endl;
     std::cout << yPos << std::endl;
-    std::cout<<std::endl;
+    std::cout << std::endl;
     // Black to move
     if (playerToMove->getIsBlack())
     {
@@ -216,8 +216,52 @@ bool Logic::Bicie(int xPos, int yPos)
             {
                 for (int j = 0; j < p2Figures.size(); j++)
                 {
-
+                    for (int k = 0; k < 8; k++)
+                    {
+                        if ((p1Figures[i]->getXPos() + k >= 8) || (p1Figures[i]->getYPos() + k >= 8))
+                        {
+                            break;
+                        }
+                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() + k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() + k))
+                        {
+                            std::cout<<"1"<<std::endl;
+                        }
+                    }
+                    for (int k = 0; k < 8; k++)
+                    {
+                        if ((p1Figures[i]->getXPos() - k < 0) || (p1Figures[i]->getYPos() - k < 0))
+                        {
+                            break;
+                        }
+                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() - k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() - k))
+                        {
+                            std::cout<<"2"<<std::endl;
+                        }
+                    }
+                    for (int k = 0; k < 8; k++)
+                    {
+                        if ((p1Figures[i]->getXPos() + k >= 8) || (p1Figures[i]->getYPos() - k < 0))
+                        {
+                            break;
+                        }
+                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() + k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() - k))
+                        {
+                            std::cout<<"3"<<std::endl;
+                        }
+                    }
+                    for (int k = 0; k < 8; k++)
+                    {
+                        if ((p1Figures[i]->getXPos() - k < 0) || (p1Figures[i]->getYPos() + k >= 8))
+                        {
+                            break;
+                        }
+                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() - k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() + k))
+                        {
+                            std::cout<<"4"<<std::endl;
+                        }
+                    }
                 }
+                //TODO: sprawdzenie czy nie ma po drodze swoich ziomków
             }
                 // Normal figures to move
             else

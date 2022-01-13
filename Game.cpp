@@ -7,10 +7,21 @@ Game::Game() :
     Run();
 }
 
-#include <iostream>
-
 void Game::Run()
 {
+    sf::Font font;
+    if (!font.loadFromFile("../arial.ttf"))
+    {
+        std::cout << "Error occured during loading the font" << std::endl;
+        throw std::exception("Failed to load font file");
+    }
+    text.setFont(font);
+    text.setString("");
+    text.setCharacterSize(50);
+    text.setFillColor(sf::Color::Red);
+    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    text.setPosition(200, 300);
+
     while (mainWindow.isOpen())
     {
         try
@@ -18,8 +29,20 @@ void Game::Run()
             HandleEvents();
         } catch (std::exception &ex)
         {
-            std::cout << ex.what() << std::endl;
-            break;
+            std::string msg = ex.what();
+            if (msg == "Czarne")
+            {
+                Win(true);
+            }
+            else if (msg == "Biale")
+            {
+                Win(false);
+            }
+            else
+            {
+                std::cout << "Error:" << std::endl;
+                std::cout << ex.what() << std::endl;
+            }
         }
         Draw();
     }
@@ -49,6 +72,19 @@ void Game::Draw()
 
         board.Draw(mainWindow);
         logic.Draw(mainWindow);
+        mainWindow.draw(text);
         mainWindow.display();
+    }
+}
+
+void Game::Win(bool czarne)
+{
+    if (czarne)
+    {
+        text.setString("Czarne wygraly");
+    }
+    else
+    {
+        text.setString("Biale wygraly");
     }
 }

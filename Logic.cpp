@@ -2,7 +2,7 @@
 
 Logic::Logic() : isP1Move(true), isClicked(false)
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 2; i++)
     {
         if (i % 2 == 0)
         {
@@ -29,8 +29,32 @@ void Logic::MoveEventHandler(sf::Event &event)
 
         if (MoveChecker(xPos, yPos))
         {
+            if (abs(playerToMove->getXPos() - xPos) > 1)
+            {
+                if (playerToMove->getIsBlack())
+                {
+                    for (int i = 0; i < p2Figures.size(); i++)
+                    {
+                        if ((p2Figures[i]->getXPos() == ((playerToMove->getXPos() + xPos) / 2)) && (p2Figures[i]->getYPos() == ((playerToMove->getYPos() + yPos) / 2)))
+                        {
+                            p2Figures.erase(p2Figures.begin() + i);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < p1Figures.size(); i++)
+                    {
+                        if ((p1Figures[i]->getXPos() == ((playerToMove->getXPos() + xPos) / 2)) && (p1Figures[i]->getYPos() == ((playerToMove->getYPos() + yPos) / 2)))
+                        {
+                            p1Figures.erase(p1Figures.begin() + i);
+                            break;
+                        }
+                    }
+                }
+            }
             playerToMove->Move(xPos, yPos);
-
             //Change to queen
             if (playerToMove->getIsBlack())
             {
@@ -76,11 +100,11 @@ void Logic::MoveEventHandler(sf::Event &event)
         playerToMove->ChangeColor(true);
         if (p1Figures.size() == 0)
         {
-            throw std::exception("Biale wygraly");
+            throw std::exception("Biale");
         }
         else if (p2Figures.size() == 0)
         {
-            throw std::exception("Czarne wygraly");
+            throw std::exception("Czarne");
         }
     }
         //When it's chosing figure to move
@@ -117,7 +141,6 @@ void Logic::MoveEventHandler(sf::Event &event)
                 }
             }
         }
-
         if (finded)
         {
             playerToMove->ChangeColor();
@@ -127,71 +150,38 @@ void Logic::MoveEventHandler(sf::Event &event)
 
 bool Logic::MoveChecker(int xPos, int yPos)
 {
-    // it is queen figure
-    if (dynamic_cast<NormalFigure *>(playerToMove) == nullptr)
+    // Same row
+    if (playerToMove->getXPos() == xPos)
     {
-        // Same row
-        if (playerToMove->getXPos() == xPos)
-        {
-            return false;
-        }
-        // Black squares
-        if (((xPos + yPos) % 2) == 1)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < p1Figures.size(); i++)
-        {
-            if ((p1Figures[i]->getXPos() == xPos) && (p1Figures[i]->getYPos() == yPos))
-            {
-                return false;
-            }
-        }
-        for (int i = 0; i < p2Figures.size(); i++)
-        {
-            if ((p2Figures[i]->getXPos() == xPos) && (p2Figures[i]->getYPos() == yPos))
-            {
-                return false;
-            }
-        }
-
-
-        if (!Bicie(xPos, yPos))
+        return false;
+    }
+    // Black squares
+    if (((xPos + yPos) % 2) == 1)
+    {
+        return false;
+    }
+    for (int i = 0; i < p1Figures.size(); i++)
+    {
+        if ((p1Figures[i]->getXPos() == xPos) && (p1Figures[i]->getYPos() == yPos))
         {
             return false;
         }
     }
-        // it is normal figure
-    else
+    for (int i = 0; i < p2Figures.size(); i++)
     {
-        // Same row
-        if (playerToMove->getXPos() == xPos)
+        if ((p2Figures[i]->getXPos() == xPos) && (p2Figures[i]->getYPos() == yPos))
         {
             return false;
         }
-        // Black squares
-        if (((xPos + yPos) % 2) == 1)
-        {
-            return false;
-        }
-
-        for (int i = 0; i < p1Figures.size(); i++)
-        {
-            if ((p1Figures[i]->getXPos() == xPos) && (p1Figures[i]->getYPos() == yPos))
-            {
-                return false;
-            }
-        }
-        for (int i = 0; i < p2Figures.size(); i++)
-        {
-            if ((p2Figures[i]->getXPos() == xPos) && (p2Figures[i]->getYPos() == yPos))
-            {
-                return false;
-            }
-        }
-
-        if (!Bicie(xPos, yPos))
+    }
+    int size = 0;
+    if (!Bicie(xPos, yPos, size))
+    {
+        return false;
+    }
+    if(size==0)
+    {
+        if((abs(playerToMove->getXPos()-xPos)>1)||(abs(playerToMove->getYPos()-yPos)>1))
         {
             return false;
         }
@@ -201,196 +191,43 @@ bool Logic::MoveChecker(int xPos, int yPos)
 
 #include <iostream>
 
-bool Logic::Bicie(int xPos, int yPos)
+bool Logic::Bicie(int xPos, int yPos, int &size)
 {
-    std::cout << xPos << std::endl;
-    std::cout << yPos << std::endl;
-    std::cout << std::endl;
-    // Black to move
+
+    std::vector<std::pair<Point, Point>> possibleMoves;
+
     if (playerToMove->getIsBlack())
     {
-        for (int i = 0; i < p1Figures.size(); i++)
-        {
-            // Queen figures to move
-            if (dynamic_cast<NormalFigure *>(p1Figures[i]) == nullptr)
-            {
-                for (int j = 0; j < p2Figures.size(); j++)
-                {
-                    for (int k = 0; k < 8; k++)
-                    {
-                        if ((p1Figures[i]->getXPos() + k >= 8) || (p1Figures[i]->getYPos() + k >= 8))
-                        {
-                            break;
-                        }
-                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() + k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() + k))
-                        {
-                            std::cout<<"1"<<std::endl;
-                        }
-                    }
-                    for (int k = 0; k < 8; k++)
-                    {
-                        if ((p1Figures[i]->getXPos() - k < 0) || (p1Figures[i]->getYPos() - k < 0))
-                        {
-                            break;
-                        }
-                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() - k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() - k))
-                        {
-                            std::cout<<"2"<<std::endl;
-                        }
-                    }
-                    for (int k = 0; k < 8; k++)
-                    {
-                        if ((p1Figures[i]->getXPos() + k >= 8) || (p1Figures[i]->getYPos() - k < 0))
-                        {
-                            break;
-                        }
-                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() + k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() - k))
-                        {
-                            std::cout<<"3"<<std::endl;
-                        }
-                    }
-                    for (int k = 0; k < 8; k++)
-                    {
-                        if ((p1Figures[i]->getXPos() - k < 0) || (p1Figures[i]->getYPos() + k >= 8))
-                        {
-                            break;
-                        }
-                        if ((p2Figures[j]->getXPos() == p1Figures[i]->getXPos() - k) && (p2Figures[j]->getYPos() == p1Figures[i]->getYPos() + k))
-                        {
-                            std::cout<<"4"<<std::endl;
-                        }
-                    }
-                }
-                //TODO: sprawdzenie czy nie ma po drodze swoich ziomków
-            }
-                // Normal figures to move
-            else
-            {
-                for (int j = 0; j < p2Figures.size(); j++)
-                {
-                    if (p1Figures[i]->getYPos() + 1 == p2Figures[j]->getYPos())
-                    {
-                        if (p1Figures[i]->getYPos() + 2 >= 8)
-                        {
-                            std::cout << "Jest tylko teoretyczne bicie.1" << std::endl;
-                            return true;
-                        }
-                        if ((p1Figures[i]->getXPos() == p2Figures[j]->getXPos() + 1) || (p1Figures[i]->getXPos() == p2Figures[j]->getXPos() - 1))
-                        {
-                            if ((p1Figures[i]->getXPos() + 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
-                            {
-                                if (p1Figures[i]->getYPos() + 2 == yPos)
-                                {
-                                    p2Figures.erase(p2Figures.begin() + j);
-                                    std::cout << "Poprawny pionek" << std::endl;
-                                    return true;
-                                }
-                            }
-                            else if ((p1Figures[i]->getXPos() - 2 == xPos) && (p2Figures[j]->getXPos() + 1 == xPos))
-                            {
-                                if (p1Figures[i]->getYPos() + 2 == yPos)
-                                {
-                                    p2Figures.erase(p2Figures.begin() + j);
-                                    std::cout << "Poprawny pionek" << std::endl;
-                                    return true;
-                                }
-                            }
-                            if (p1Figures[i]->getXPos() + 2 >= 8)
-                            {
-                                std::cout << "Jest tylko teoretyczne bicie.2" << std::endl;
-                                return true;
-                            }
-                            if (p1Figures[i]->getXPos() - 2 < 0)
-                            {
-                                std::cout << "Jest tylko teoretyczne bicie.3" << std::endl;
-                                return true;
-                            }
-                            if (p1Figures[i] != playerToMove)
-                            {
-                                std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
-                                return false;
-                            }
-                            std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
-                            return false;
-
-                        }
-                    }
-                }
-            }
-        }
+        BiciePomocnicze2(p1Figures, p2Figures, p1Figures.size(), p2Figures.size(), possibleMoves, true);
     }
-        // White figures to move
     else
     {
-        for (int i = 0; i < p2Figures.size(); i++)
+        BiciePomocnicze2(p2Figures, p1Figures, p2Figures.size(), p1Figures.size(), possibleMoves, false);
+    }
+
+    size = possibleMoves.size();
+    if (possibleMoves.size() == 0)
+    {
+        return true;
+    }
+
+    for (int i = 0; i < possibleMoves.size(); i++)
+    {
+        if (possibleMoves[i].first.x == playerToMove->getXPos())
         {
-            // Queen figures to move
-            if (dynamic_cast<NormalFigure *>(p2Figures[i]) == nullptr)
+            if (possibleMoves[i].first.y == playerToMove->getYPos())
             {
-                for (int j = 0; j < p1Figures.size(); j++)
+                if (possibleMoves[i].second.x == xPos)
                 {
-
-                }
-            }
-                // Normal figures to move
-            else
-            {
-                for (int j = 0; j < p1Figures.size(); j++)
-                {
-                    if (p2Figures[i]->getYPos() - 1 == p1Figures[j]->getYPos())
+                    if (possibleMoves[i].second.y == yPos)
                     {
-                        if (p2Figures[i]->getYPos() - 2 < 0)
-                        {
-                            std::cout << "Jest tylko teoretyczne bicie.4" << std::endl;
-                            return true;
-                        }
-                        if ((p2Figures[i]->getXPos() == p1Figures[j]->getXPos() + 1) || (p2Figures[i]->getXPos() == p1Figures[j]->getXPos() - 1))
-                        {
-                            if ((p2Figures[i]->getXPos() + 2 == xPos) && (p1Figures[j]->getXPos() + 1 == xPos))
-                            {
-                                if (p2Figures[i]->getYPos() - 2 == yPos)
-                                {
-                                    p1Figures.erase(p1Figures.begin() + j);
-                                    std::cout << "Poprawny pionek" << std::endl;
-                                    return true;
-                                }
-                            }
-                            else if ((p2Figures[i]->getXPos() - 2 == xPos) && (p1Figures[j]->getXPos() - 1 == xPos))
-                            {
-                                if (p2Figures[i]->getYPos() - 2 == yPos)
-                                {
-                                    p1Figures.erase(p1Figures.begin() + j);
-                                    std::cout << "Poprawny pionek" << std::endl;
-                                    return true;
-                                }
-                            }
-                            if (p2Figures[i]->getXPos() + 2 >= 8)
-                            {
-                                std::cout << p2Figures[i]->getXPos() << std::endl;
-                                std::cout << p2Figures[i]->getYPos() << std::endl;
-                                std::cout << "Jest tylko teoretyczne bicie.5" << std::endl;
-                                return true;
-                            }
-                            if (p2Figures[i]->getXPos() - 2 < 0)
-                            {
-                                std::cout << "Jest tylko teoretyczne bicie.6" << std::endl;
-                                return true;
-                            }
-                            if (p2Figures[i] != playerToMove)
-                            {
-                                std::cout << "Niepoprawny pionek, a jest bicie" << std::endl;
-                                return false;
-                            }
-                            std::cout << "Poprawny pionek, ale w złe miejsce" << std::endl;
-                            return false;
-
-                        }
+                        return true;
                     }
                 }
             }
         }
     }
-    return true;
+    return false;
 }
 
 void Logic::Draw(sf::RenderWindow &window)
@@ -402,5 +239,325 @@ void Logic::Draw(sf::RenderWindow &window)
     for (int i = 0; i < p2Figures.size(); i++)
     {
         p2Figures[i]->Draw(window);
+    }
+}
+
+void Logic::BiciePomocnicze(int figureXPos, int figureYPos, int offsetX, int offsetY, std::vector<std::pair<Point, Point>> &moves)
+{
+    bool isPossible = true;
+    for (int k = 0; k < p1Figures.size(); k++)
+    {
+        if ((figureXPos + offsetX == p1Figures[k]->getXPos()) && (figureYPos + offsetY == p1Figures[k]->getYPos()))
+        {
+            isPossible = false;
+            break;
+        }
+    }
+    if (isPossible)
+        for (int k = 0; k < p2Figures.size(); k++)
+        {
+            if ((figureXPos + offsetX == p2Figures[k]->getXPos()) && (figureYPos + offsetY == p2Figures[k]->getYPos()))
+            {
+                isPossible = false;
+                break;
+            }
+        }
+    if (isPossible)
+    {
+        Point figurePos{figureXPos, figureYPos};
+        Point placeToMove{figureXPos + offsetX, figureYPos + offsetY};
+        moves.push_back(std::make_pair(figurePos, placeToMove));
+    }
+}
+
+void Logic::BiciePomocnicze2(std::vector<Figure *> p1Players, std::vector<Figure *> p2Players, int p1PlayersSize, int p2PlayersSize, std::vector<std::pair<Point, Point>> &possibleMoves, bool black)
+{
+    int yOffset2;
+    if (black)
+        yOffset2 = 1;
+    else
+        yOffset2 = -1;
+    for (int i = 0; i < p1PlayersSize; i++)
+    {
+        for (int j = 0; j < p2PlayersSize; j++)
+        {
+            int figureXPos = p1Players[i]->getXPos();
+            int figureYPos = p1Players[i]->getYPos();
+            // Queen figures
+            if (dynamic_cast<NormalFigure *>(p1Players[i]) == nullptr)
+            {
+                if (figureXPos <= 1)
+                {
+                    if (figureYPos <= 1)
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, 2, possibleMoves);
+                        }
+                    }
+                    else if (figureYPos >= 6)
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, -2, possibleMoves);
+                        }
+                    }
+                    else
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, 2, possibleMoves);
+                        }
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, -2, possibleMoves);
+                        }
+                    }
+                }
+                else if (figureXPos >= 6)
+                {
+                    if (figureYPos <= 1)
+                    {
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, 2, possibleMoves);
+                        }
+                    }
+                    else if (figureYPos >= 6)
+                    {
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, -2, possibleMoves);
+                        }
+                    }
+                    else
+                    {
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, 2, possibleMoves);
+                        }
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, -2, possibleMoves);
+                        }
+                    }
+                }
+                if (figureYPos <= 1)
+                {
+                    if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, 2, 2, possibleMoves);
+                    }
+                    if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, -2, 2, possibleMoves);
+                    }
+                }
+                else if (figureYPos >= 6)
+                {
+                    if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, 2, -2, possibleMoves);
+                    }
+                    if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, -2, -2, possibleMoves);
+                    }
+                }
+                {
+                    if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, 2, -2, possibleMoves);
+                    }
+                    if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, 2, 2, possibleMoves);
+                    }
+                    if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos - 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, -2, -2, possibleMoves);
+                    }
+                    if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + 1 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, -2, 2, possibleMoves);
+                    }
+                }
+            }
+                // Normal figures
+            else
+            {
+                if (figureXPos <= 1)
+                {
+                    if (figureYPos <= 1)
+                    {
+                        if (black)
+                        {
+                            if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+
+                    }
+                    else if (figureYPos >= 6)
+                    {
+                        if (black)
+                        {
+
+                        }
+                        else
+                        {
+                            if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                        }
+                    }
+                }
+                else if (figureXPos >= 6)
+                {
+                    if (figureYPos <= 1)
+                    {
+                        if (black)
+                        {
+                            if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else if (figureYPos >= 6)
+                    {
+                        if (black)
+                        {
+
+                        }
+                        else
+                        {
+                            if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                        }
+                    }
+                }
+                if (figureYPos <= 1)
+                {
+                    if (figureXPos <= 1)
+                    {
+                        if (black)
+                        {
+                            if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else if (figureXPos >= 6)
+                    {
+                        if (black)
+                        {
+                            if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                        }
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                        }
+                    }
+                }
+                else if (figureYPos >= 6)
+                {
+                    if (figureXPos <= 1)
+                    {
+                        if (black)
+                        {
+
+                        }
+                        else
+                        {
+                            if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                    }
+                    else if (figureXPos >= 6)
+                    {
+                        if (black)
+                        {
+
+                        }
+                        else
+                        {
+                            if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                            {
+                                BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                            }
+                        }
+                    }
+                    {
+                        if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                        }
+                        if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                        {
+                            BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                        }
+                    }
+                }
+                {
+                    if ((figureXPos + 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, 2, yOffset2 * 2, possibleMoves);
+                    }
+                    if ((figureXPos - 1 == p2Players[j]->getXPos()) && (figureYPos + yOffset2 == p2Players[j]->getYPos()))
+                    {
+                        BiciePomocnicze(figureXPos, figureYPos, -2, yOffset2 * 2, possibleMoves);
+                    }
+                }
+
+            }
+        }
     }
 }

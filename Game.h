@@ -1,6 +1,7 @@
 #ifndef WARCABY_GAME_H
 #define WARCABY_GAME_H
 
+#include <iostream>
 #include "Board.h"
 #include "Figure.h"
 #include "Logic.h"
@@ -11,6 +12,7 @@ class Game
     sf::RenderWindow mainWindow;
     Board board;
     Logic logic;
+    sf::Text text;
 
 public:
     Game();
@@ -20,6 +22,8 @@ public:
     void HandleEvents();
 
     void Draw();
+
+    void Win(bool czarne);
 };
 
 
